@@ -1,0 +1,5 @@
+arazzo: https://sketchfab.com/3d-models/the-lady-and-the-unicorn-cluny-museum-4400292b44e64036858c2364bc952e30 ( nicolas diolez)
+leggio medievale: https://sketchfab.com/3d-models/lectern-17562d27f70b4b4a834cd778cd5e6c06 (lectern)
+panca medievale : https://sketchfab.com/3d-models/church-bench-2-5ff95fc42d3643dc870f8958fd3fed2d(elisey)
+panca rinascimentale : https://sketchfab.com/3d-models/old-wooden-bench-503f23c30e6d4f7a8dc915420cc5f630 (lvalics)
+pianta : https://sketchfab.com/3d-models/free-plant-and-pot-2288f8a48b4c411f8926bf70086a2156 (kumeli1)
