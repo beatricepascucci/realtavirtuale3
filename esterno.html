@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Vista Esterna</title>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="js/components.js"></script>
+  <style>
+    body { margin: 0; background: #000; font-family: 'Georgia', serif; }
+    #hud { position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 1.5rem;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+      pointer-events: none; }
+    #hud-title { font-size: 0.85rem; letter-spacing: 0.2em;
+      color: rgba(232,207,133,0.9); text-transform: uppercase; }
+    #hud-back { pointer-events: all; text-decoration: none; font-size: 0.8rem;
+      letter-spacing: 0.15em; color: rgba(232,207,133,0.8);
+      border: 1px solid rgba(201,168,76,0.4); padding: 0.4rem 0.9rem;
+      transition: all 0.3s; background: rgba(0,0,0,0.4); }
+    #hud-back:hover { color: #e8cf85; border-color: #c9a84c; background: rgba(0,0,0,0.7); }
+    #crosshair { position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%,-50%); width: 20px; height: 20px;
+      pointer-events: none; z-index: 50; opacity: 0.6; }
+    #crosshair::before, #crosshair::after { content: ''; position: absolute;
+      background: rgba(232,207,133,0.8); }
+    #crosshair::before { width: 100%; height: 1px; top: 50%; }
+    #crosshair::after  { width: 1px; height: 100%; left: 50%; }
+  </style>
+</head>
+<body>
+  <div id="hud">
+    <span id="hud-title">✦ &nbsp; La Rocca — Vista Esterna</span>
+    <a id="hud-back" href="index.html">← Menu</a>
+  </div>
+  <div id="crosshair"></div>
+<!-- ═══════════════════════════════════════════
+     MINIMAPPA HUD — Rocca Colonna
+     Incolla questo blocco dentro <body>, PRIMA di <a-scene>
+     Cambia solo: data-current="NOME_SCENA_CORRENTE"
+     Valori possibili: piazza | esterno | corridoio | pozzo | cappella | loggia
+════════════════════════════════════════════ -->
+
+<div id="minimap-hud" data-current="esterno">
+<svg width="170" height="143" viewBox="0 0 220 185" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="mm-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#6a5830" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="mm-arrow-active" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<!-- Sfondo mappa -->
+<rect x="0" y="0" width="220" height="185" rx="4"
+  fill="rgba(13,11,8,0.88)" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.5"/>
+
+<!-- ══ PIAZZA ══ -->
+<rect id="mm-piazza" x="8" y="152" width="204" height="26" rx="0"
+  fill="#2a2010" stroke="#5a4820" stroke-width="0.8"/>
+<text id="mm-piazza-t" x="110" y="166" text-anchor="middle" dominant-baseline="central"
+  font-family="Georgia,serif" font-size="8" fill="#7a6840">piazza</text>
+
+<!-- scale piazza→esterno -->
+<g transform="translate(50,127)">
+  <rect x="0" y="0" width="28" height="22" fill="rgba(13,11,8,0)" stroke="#5a4820" stroke-width="0.6"/>
+  <line x1="0" y1="4.4"  x2="28" y2="4.4"  stroke="#5a4820" stroke-width="0.5"/>
+  <line x1="0" y1="8.8"  x2="28" y2="8.8"  stroke="#5a4820" stroke-width="0.5"/>
+  <line x1="0" y1="13.2" x2="28" y2="13.2" stroke="#5a4820" stroke-width="0.5"/>
+  <line x1="0" y1="17.6" x2="28" y2="17.6" stroke="#5a4820" stroke-width="0.5"/>
+  <line x1="0" y1="22"   x2="28" y2="0"    stroke="#5a4820" stroke-width="0.4" opacity="0.4"/>
+</g>
+<!-- freccia piazza→esterno -->
+<line x1="64" y1="126" x2="64" y2="114"
+  stroke="#6a5830" stroke-width="1" marker-end="url(#mm-arrow)"/>
+
+<!-- ══ ESTERNO ══ -->
+<rect id="mm-esterno" x="28" y="90" width="72" height="30" rx="4"
+  fill="#2a2010" stroke="#5a4820" stroke-width="0.8"/>
+<text id="mm-esterno-t" x="64" y="106" text-anchor="middle" dominant-baseline="central"
+  font-family="Georgia,serif" font-size="8" fill="#7a6840">esterno</text>
+
+<!-- freccia esterno→corridoio -->
+<line x1="64" y1="89" x2="64" y2="76"
+  stroke="#6a5830" stroke-width="1" marker-end="url(#mm-arrow)"/>
+
+<!-- ══ CORRIDOIO ══ -->
+<rect id="mm-corridoio" x="28" y="48" width="72" height="30" rx="4"
+  fill="#2a2010" stroke="#5a4820" stroke-width="0.8"/>
+<text id="mm-corridoio-t" x="64" y="64" text-anchor="middle" dominant-baseline="central"
+  font-family="Georgia,serif" font-size="8" fill="#7a6840">corridoio</text>
+
+<!-- scale corridoio→pozzo -->
+<g transform="translate(104,55)">
+  <rect x="0" y="0" width="26" height="18" fill="rgba(13,11,8,0)" stroke="#5a4820" stroke-width="0.6"/>
+  <line x1="0" y1="4.5" x2="26" y2="4.5" stroke="#5a4820" stroke-width="0.5"/>
+  <line x1="0" y1="9"   x2="26" y2="9"   stroke="#5a4820" stroke-width="0.5"/>
+  <line x1="0" y1="13.5" x2="26" y2="13.5" stroke="#5a4820" stroke-width="0.5"/>
+  <line x1="0" y1="18"  x2="26" y2="0"   stroke="#5a4820" stroke-width="0.4" opacity="0.4"/>
+</g>
+<!-- freccia scale→pozzo -->
+<line x1="132" y1="64" x2="143" y2="64"
+  stroke="#6a5830" stroke-width="1" marker-end="url(#mm-arrow)"/>
+
+<!-- freccia corridoio→cappella -->
+<line x1="98" y1="74" x2="140" y2="108"
+  stroke="#6a5830" stroke-width="1" marker-end="url(#mm-arrow)"/>
+
+<!-- ══ SALA DEL POZZO ══ cerchio -->
+<circle id="mm-pozzo" cx="168" cy="64" r="26"
+  fill="#2a2010" stroke="#5a4820" stroke-width="0.8"/>
+<text id="mm-pozzo-t1" x="168" y="59" text-anchor="middle" dominant-baseline="central"
+  font-family="Georgia,serif" font-size="7" fill="#7a6840">sala del</text>
+<text id="mm-pozzo-t2" x="168" y="70" text-anchor="middle" dominant-baseline="central"
+  font-family="Georgia,serif" font-size="7" fill="#7a6840">pozzo</text>
+
+<!-- freccia pozzo→loggia -->
+<line x1="182" y1="41" x2="192" y2="24"
+  stroke="#6a5830" stroke-width="1" marker-end="url(#mm-arrow)"/>
+
+<!-- ══ LOGIA PINTA ══ quadrato -->
+<rect id="mm-loggia" x="182" y="6" width="34" height="34" rx="0"
+  fill="#2a2010" stroke="#5a4820" stroke-width="0.8"/>
+<text id="mm-loggia-t1" x="199" y="18" text-anchor="middle" dominant-baseline="central"
+  font-family="Georgia,serif" font-size="6.5" fill="#7a6840">loggia</text>
+<text id="mm-loggia-t2" x="199" y="29" text-anchor="middle" dominant-baseline="central"
+  font-family="Georgia,serif" font-size="6.5" fill="#7a6840">pinta</text>
+
+<!-- ══ CAPPELLA ══ quadrato -->
+<rect id="mm-cappella" x="140" y="112" width="40" height="40" rx="0"
+  fill="#2a2010" stroke="#5a4820" stroke-width="0.8"/>
+<text id="mm-cappella-t" x="160" y="133" text-anchor="middle" dominant-baseline="central"
+  font-family="Georgia,serif" font-size="7" fill="#7a6840">cappella</text>
+
+<!-- punto posizione pulsante -->
+<circle id="mm-dot" cx="168" cy="64" r="3" fill="#c9a84c">
+  <animate attributeName="opacity" values="1;0.2;1" dur="1.4s" repeatCount="indefinite"/>
+</circle>
+
+</svg>
+</div>
+
+<style>
+#minimap-hud {
+  position: fixed;
+  top: 52px;
+  left: 1.5rem;
+  z-index: 200;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 10px rgba(0,0,0,0.8));
+}
+</style>
+
+<script>
+(function() {
+  var ROOMS = {
+    piazza:    { dot: [110, 165], fills: ['mm-piazza'] },
+    esterno:   { dot: [64,  106], fills: ['mm-esterno'] },
+    corridoio: { dot: [64,  64],  fills: ['mm-corridoio'] },
+    pozzo:     { dot: [168, 64],  fills: ['mm-pozzo'] },
+    cappella:  { dot: [160, 133], fills: ['mm-cappella'] },
+    loggia:     { dot: [199, 23],  fills: ['mm-loggia'] },
+  };
+
+  var NEUTRAL_FILL   = '#2a2010';
+  var NEUTRAL_STROKE = '#5a4820';
+  var NEUTRAL_TEXT   = '#7a6840';
+  var ACTIVE_FILL    = 'rgba(201,168,76,0.22)';
+  var ACTIVE_STROKE  = '#c9a84c';
+  var ACTIVE_TEXT    = '#e8cf85';
+
+  var TEXT_IDS = {
+    piazza:    ['mm-piazza-t'],
+    esterno:   ['mm-esterno-t'],
+    corridoio: ['mm-corridoio-t'],
+    pozzo:     ['mm-pozzo-t1','mm-pozzo-t2'],
+    cappella:  ['mm-cappella-t'],
+    loggia:     ['mm-loggia-t1','mm-loggia-t2'],
+  };
+
+  function highlight(key) {
+    // Reset tutto
+    Object.keys(ROOMS).forEach(function(k) {
+      var shapeId = 'mm-' + k;
+      var el = document.getElementById(shapeId);
+      if (!el) return;
+      if (el.tagName === 'circle') {
+        el.setAttribute('fill', NEUTRAL_FILL);
+        el.setAttribute('stroke', NEUTRAL_STROKE);
+      } else {
+        el.setAttribute('fill', NEUTRAL_FILL);
+        el.setAttribute('stroke', NEUTRAL_STROKE);
+      }
+      TEXT_IDS[k].forEach(function(tid) {
+        var t = document.getElementById(tid);
+        if (t) t.setAttribute('fill', NEUTRAL_TEXT);
+      });
+    });
+
+    // Attiva stanza corrente
+    var shapeId = 'mm-' + key;
+    var el = document.getElementById(shapeId);
+    if (el) {
+      el.setAttribute('fill', ACTIVE_FILL);
+      el.setAttribute('stroke', ACTIVE_STROKE);
+    }
+    TEXT_IDS[key].forEach(function(tid) {
+      var t = document.getElementById(tid);
+      if (t) t.setAttribute('fill', ACTIVE_TEXT);
+    });
+
+    // Sposta dot
+    var dot = document.getElementById('mm-dot');
+    var pos = ROOMS[key].dot;
+    dot.setAttribute('cx', pos[0]);
+    dot.setAttribute('cy', pos[1]);
+  }
+
+  // Legge la scena corrente dall'attributo data-current
+  var hud = document.getElementById('minimap-hud');
+  var current = hud.getAttribute('data-current') || 'piazza';
+  highlight(current);
+})();
+</script>
+  <a-scene
+    loading-screen="dotsColor: #c9a84c; backgroundColor: #0d0b08"
+    vr-mode-ui="enabled: true"
+    cursor="rayOrigin: mouse"
+    raycaster="objects: .interactable; far: 20"
+  >
+    <a-assets timeout="10000">
+      <img id="sky-texture" src="IMG/esterno.JPG" crossorigin="anonymous"/>
+    </a-assets>
+
+    <a-sky src="#sky-texture" rotation="0 -90 0"></a-sky>
+    <a-light type="ambient" color="#ffffff" intensity="0.6"></a-light>
+    <a-light type="directional" color="#e8cf85" intensity="0.8" position="2 4 2"></a-light>
+
+   <a-entity id="rig" position="0 0 0" rotation="0 200 0">
+  <a-camera id="camera"
+    look-controls="pointerLockEnabled: false"
+    wasd-controls="acceleration: 20"
+    position="0 1.6 0">
+    <a-cursor color="#c9a84c" fuse="false" raycaster="objects: .interactable"></a-cursor>
+  </a-camera>
+</a-entity>
+
+    <!-- PORTALE → Piazza -->
+<a-entity position="-4 0 -5">
+  <a-torus
+    class="interactable"
+    radius="0.7" radius-tubular="0.04" color="#c9a84c"
+    position="0.677 0.218 8.386"
+    rotation="0 150 0"
+    animation="property: rotation; to: 0 510 0; dur: 6000; loop: true; easing: linear"
+    onclick="window.location.href='piazza.html'"
+  ></a-torus>
+  <a-circle
+    class="interactable"
+    radius="0.65"
+    position="0.568 0.165 8.639"
+    rotation="0 120 0"
+    material="shader: flat; color: #0a1a2a; opacity: 0.8"
+    animation="property: material.opacity; to: 0.5; dur: 1500; loop: true; dir: alternate"
+    onclick="window.location.href='piazza.html'"
+  ></a-circle>
+<!-- Sfondo + scritta Piazza -->
+
+<a-plane
+  position="0.6 1.2 8.6"
+  rotation="0 -210 0"
+  width="1.2" height="0.35"
+  material="shader: flat; color: #000000; opacity: 0.8; side: double"
+></a-plane>
+<a-text value="← Piazza" position="0.6 1.2 8.5" rotation="0 -210 0" align="center" color="#ffffff" width="1.75" wrap-count="10" side="double"></a-text>
+  <a-entity portal-particles position="0.568 0.165 8.639"></a-entity>
+</a-entity>
+
+   <!-- PORTALE → Corridoio -->
+<a-entity position="4 0 -5">
+  <a-torus
+    class="interactable"
+    radius="0.7" radius-tubular="0.04" color="#c9a84c"
+    position="1.936 1.465 8.247"
+    rotation="0 80 0"
+    animation="property: rotation; to: 0 440 0; dur: 6000; loop: true; easing: linear"
+    onclick="window.location.href='corridoio.html'"
+  ></a-torus>
+  <a-circle
+    class="interactable"
+    radius="0.65"
+    position="2.071 1.457 8.301"
+    rotation="0 -75 0"
+    material="shader: flat; color: #0a1a2a; opacity: 0.8"
+    animation="property: material.opacity; to: 0.5; dur: 1500; loop: true; dir: alternate"
+    onclick="window.location.href='corridoio.html'"
+  ></a-circle>
+<!-- Sfondo + scritta Corridoio -->
+<a-plane
+  position="2 2.5 8.4"
+  rotation="0 -100 0"
+  width="1.4" height="0.35"
+  material="shader: flat; color: #000000; opacity: 0.8; side: double"
+></a-plane>
+<a-text value="Corridoio →" position="2 2.5 8.3" rotation="0 -100 0" align="center" color="#ffffff" width="2" wrap-count="12" side="double"></a-text>
+  <a-entity portal-particles position="2 1.46 8.3"></a-entity>
+</a-entity>
+
+  </a-scene>
+  <script>  </script>
+</body>
+</html>

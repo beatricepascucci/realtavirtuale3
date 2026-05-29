@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Piazza</title>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="js/components.js"></script>
+  <style>
+    body { margin: 0; background: #000; font-family: 'Georgia', serif; }
+    #hud { position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 1.5rem;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+      pointer-events: none; }
+    #hud-title { font-size: 0.85rem; letter-spacing: 0.2em;
+      color: rgba(232,207,133,0.9); text-transform: uppercase; }
+    #hud-back { pointer-events: all; text-decoration: none; font-size: 0.8rem;
+      letter-spacing: 0.15em; color: rgba(232,207,133,0.8);
+      border: 1px solid rgba(201,168,76,0.4); padding: 0.4rem 0.9rem;
+      transition: all 0.3s; background: rgba(0,0,0,0.4); }
+    #hud-back:hover { color: #e8cf85; border-color: #c9a84c; background: rgba(0,0,0,0.7); }
+    #crosshair { position: fixed; top: 50%; left: 50%;
+      transform: translate(-50%,-50%); width: 20px; height: 20px;
+      pointer-events: none; z-index: 50; opacity: 0.6; }
+    #crosshair::before, #crosshair::after { content: ''; position: absolute;
+      background: rgba(232,207,133,0.8); }
+    #crosshair::before { width: 100%; height: 1px; top: 50%; }
+    #crosshair::after  { width: 1px; height: 100%; left: 50%; }
+  </style>
+</head>
+<body>
+  <div id="hud">
+    <span id="hud-title">✦ &nbsp; La Rocca — Piazza</span>
+    <a id="hud-back" href="index.html">← Menu</a>
+  </div>
+  <div id="crosshair"></div>
+<!-- ═══════════════════════════════════════════
+     MINIMAPPA HUD — Rocca Colonna
+     Incolla questo blocco dentro <body>, PRIMA di <a-scene>
+     Cambia solo: data-current="NOME_SCENA_CORRENTE"
+     Valori possibili: piazza | esterno | corridoio | pozzo | cappella | loggia
+════════════════════════════════════════════ -->
+
+<div id="minimap-hud" data-current="piazza">
+<svg width="170" height="143" viewBox="0 0 220 185" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="mm-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#6a5830" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+  <marker id="mm-arrow-active" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+    <path d="M2 1L8 5L2 9" fill="none" stroke="#c9a84c" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </marker>
+</defs>
+
+<!-- Sfondo mappa -->
+<rect x="0" y="0" width="220" height="185" rx="4"
+  fill="rgba(13,11,8,0.88)" stroke="#c9a84c" stroke-width="0.6" stroke-opacity="0.5"/>
+
+<!-- ══ PIAZZA ══ -->
+<rect id="mm-piazza" x="8" y="152" width="204" height="26" rx="0"
+  fill="#2a2010" stroke="#5a4820" stroke-width="0.8"/>
+<text id="mm-piazza-t" x="110" y="166" text-anchor="middle" dominant-baseline="central"
+  font-family="Georgia,serif" font-size="8" fill="#7a6840">piazza</text>
+
+<!-- scale piazza→esterno -->
+<g transform="translate(50,127)">
+  <rect x="0" y="0" width="28" height="22" fill="rgba(13,11,8,0)" stroke="#5a4820" stroke-width="0.6"/>
+  <line x1="0" y1="4.4"  x2="28" y2="4.4"  stroke="#5a4820" stroke-width="0.5"/>
+  <line x1="0" y1="8.8"  x2="28" y2="8.8"  stroke="#5a4820" stroke-width="0.5"/>
+  <line x1="0" y1="13.2" x2="28" y2="13.2" stroke="#5a4820" stroke-width="0.5"/>
+  <line x1="0" y1="17.6" x2="28" y2="17.6" stroke="#5a4820" stroke-width="0.5"/>
+  <line x1="0" y1="22"   x2="28" y2="0"    stroke="#5a4820" stroke-width="0.4" opacity="0.4"/>
+</g>
+<!-- freccia piazza→esterno -->
+<line x1="64" y1="126" x2="64" y2="114"
+  stroke="#6a5830" stroke-width="1" marker-end="url(#mm-arrow)"/>
+
+<!-- ══ ESTERNO ══ -->
+<rect id="mm-esterno" x="28" y="90" width="72" height="30" rx="4"
+  fill="#2a2010" stroke="#5a4820" stroke-width="0.8"/>
+<text id="mm-esterno-t" x="64" y="106" text-anchor="middle" dominant-baseline="central"
+  font-family="Georgia,serif" font-size="8" fill="#7a6840">esterno</text>
+
+<!-- freccia esterno→corridoio -->
+<line x1="64" y1="89" x2="64" y2="76"
+  stroke="#6a5830" stroke-width="1" marker-end="url(#mm-arrow)"/>
+
+<!-- ══ CORRIDOIO ══ -->
+<rect id="mm-corridoio" x="28" y="48" width="72" height="30" rx="4"
+  fill="#2a2010" stroke="#5a4820" stroke-width="0.8"/>
+<text id="mm-corridoio-t" x="64" y="64" text-anchor="middle" dominant-baseline="central"
+  font-family="Georgia,serif" font-size="8" fill="#7a6840">corridoio</text>
+
+<!-- scale corridoio→pozzo -->
+<g transform="translate(104,55)">
+  <rect x="0" y="0" width="26" height="18" fill="rgba(13,11,8,0)" stroke="#5a4820" stroke-width="0.6"/>
+  <line x1="0" y1="4.5" x2="26" y2="4.5" stroke="#5a4820" stroke-width="0.5"/>
+  <line x1="0" y1="9"   x2="26" y2="9"   stroke="#5a4820" stroke-width="0.5"/>
+  <line x1="0" y1="13.5" x2="26" y2="13.5" stroke="#5a4820" stroke-width="0.5"/>
+  <line x1="0" y1="18"  x2="26" y2="0"   stroke="#5a4820" stroke-width="0.4" opacity="0.4"/>
+</g>
+<!-- freccia scale→pozzo -->
+<line x1="132" y1="64" x2="143" y2="64"
+  stroke="#6a5830" stroke-width="1" marker-end="url(#mm-arrow)"/>
+
+<!-- freccia corridoio→cappella -->
+<line x1="98" y1="74" x2="140" y2="108"
+  stroke="#6a5830" stroke-width="1" marker-end="url(#mm-arrow)"/>
+
+<!-- ══ SALA DEL POZZO ══ cerchio -->
+<circle id="mm-pozzo" cx="168" cy="64" r="26"
+  fill="#2a2010" stroke="#5a4820" stroke-width="0.8"/>
+<text id="mm-pozzo-t1" x="168" y="59" text-anchor="middle" dominant-baseline="central"
+  font-family="Georgia,serif" font-size="7" fill="#7a6840">sala del</text>
+<text id="mm-pozzo-t2" x="168" y="70" text-anchor="middle" dominant-baseline="central"
+  font-family="Georgia,serif" font-size="7" fill="#7a6840">pozzo</text>
+
+<!-- freccia pozzo→loggia -->
+<line x1="182" y1="41" x2="192" y2="24"
+  stroke="#6a5830" stroke-width="1" marker-end="url(#mm-arrow)"/>
+
+<!-- ══ LOGIA PINTA ══ quadrato -->
+<rect id="mm-loggia" x="182" y="6" width="34" height="34" rx="0"
+  fill="#2a2010" stroke="#5a4820" stroke-width="0.8"/>
+<text id="mm-loggia-t1" x="199" y="18" text-anchor="middle" dominant-baseline="central"
+  font-family="Georgia,serif" font-size="6.5" fill="#7a6840">loggia</text>
+<text id="mm-loggia-t2" x="199" y="29" text-anchor="middle" dominant-baseline="central"
+  font-family="Georgia,serif" font-size="6.5" fill="#7a6840">pinta</text>
+
+<!-- ══ CAPPELLA ══ quadrato -->
+<rect id="mm-cappella" x="140" y="112" width="40" height="40" rx="0"
+  fill="#2a2010" stroke="#5a4820" stroke-width="0.8"/>
+<text id="mm-cappella-t" x="160" y="133" text-anchor="middle" dominant-baseline="central"
+  font-family="Georgia,serif" font-size="7" fill="#7a6840">cappella</text>
+
+<!-- punto posizione pulsante -->
+<circle id="mm-dot" cx="168" cy="64" r="3" fill="#c9a84c">
+  <animate attributeName="opacity" values="1;0.2;1" dur="1.4s" repeatCount="indefinite"/>
+</circle>
+
+</svg>
+</div>
+
+<style>
+#minimap-hud {
+  position: fixed;
+  top: 52px;
+  left: 1.5rem;
+  z-index: 200;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 10px rgba(0,0,0,0.8));
+}
+</style>
+
+<script>
+(function() {
+  var ROOMS = {
+    piazza:    { dot: [110, 165], fills: ['mm-piazza'] },
+    esterno:   { dot: [64,  106], fills: ['mm-esterno'] },
+    corridoio: { dot: [64,  64],  fills: ['mm-corridoio'] },
+    pozzo:     { dot: [168, 64],  fills: ['mm-pozzo'] },
+    cappella:  { dot: [160, 133], fills: ['mm-cappella'] },
+    loggia:     { dot: [199, 23],  fills: ['mm-loggia'] },
+  };
+
+  var NEUTRAL_FILL   = '#2a2010';
+  var NEUTRAL_STROKE = '#5a4820';
+  var NEUTRAL_TEXT   = '#7a6840';
+  var ACTIVE_FILL    = 'rgba(201,168,76,0.22)';
+  var ACTIVE_STROKE  = '#c9a84c';
+  var ACTIVE_TEXT    = '#e8cf85';
+
+  var TEXT_IDS = {
+    piazza:    ['mm-piazza-t'],
+    esterno:   ['mm-esterno-t'],
+    corridoio: ['mm-corridoio-t'],
+    pozzo:     ['mm-pozzo-t1','mm-pozzo-t2'],
+    cappella:  ['mm-cappella-t'],
+    loggia:     ['mm-loggia-t1','mm-loggia-t2'],
+  };
+
+  function highlight(key) {
+    // Reset tutto
+    Object.keys(ROOMS).forEach(function(k) {
+      var shapeId = 'mm-' + k;
+      var el = document.getElementById(shapeId);
+      if (!el) return;
+      if (el.tagName === 'circle') {
+        el.setAttribute('fill', NEUTRAL_FILL);
+        el.setAttribute('stroke', NEUTRAL_STROKE);
+      } else {
+        el.setAttribute('fill', NEUTRAL_FILL);
+        el.setAttribute('stroke', NEUTRAL_STROKE);
+      }
+      TEXT_IDS[k].forEach(function(tid) {
+        var t = document.getElementById(tid);
+        if (t) t.setAttribute('fill', NEUTRAL_TEXT);
+      });
+    });
+
+    // Attiva stanza corrente
+    var shapeId = 'mm-' + key;
+    var el = document.getElementById(shapeId);
+    if (el) {
+      el.setAttribute('fill', ACTIVE_FILL);
+      el.setAttribute('stroke', ACTIVE_STROKE);
+    }
+    TEXT_IDS[key].forEach(function(tid) {
+      var t = document.getElementById(tid);
+      if (t) t.setAttribute('fill', ACTIVE_TEXT);
+    });
+
+    // Sposta dot
+    var dot = document.getElementById('mm-dot');
+    var pos = ROOMS[key].dot;
+    dot.setAttribute('cx', pos[0]);
+    dot.setAttribute('cy', pos[1]);
+  }
+
+  // Legge la scena corrente dall'attributo data-current
+  var hud = document.getElementById('minimap-hud');
+  var current = hud.getAttribute('data-current') || 'piazza';
+  highlight(current);
+})();
+</script>
+
+  <a-scene
+    loading-screen="dotsColor: #c9a84c; backgroundColor: #0d0b08"
+    vr-mode-ui="enabled: true"
+    cursor="rayOrigin: mouse"
+    raycaster="objects: .interactable; far: 20"
+  >
+
+    <!-- ═══════════════════════════════════════════
+         ASSETS
+    ════════════════════════════════════════════ -->
+    <a-assets timeout="30000">
+
+      <!-- SKY -->
+      <img id="sky-texture" src="IMG/piazza.JPG" crossorigin="anonymous"/>
+
+      <!-- VIDEO DRONE (primo contenuto del totem) -->
+      <video
+        id="totem-video"
+        src="IMG/totem/drone1.MP4"
+        crossorigin="anonymous"
+        preload="auto"
+        playsinline
+        webkit-playsinline
+        muted
+      ></video>
+
+      <!-- IMMAGINI TOTEM (mostrate dopo il video) -->
+      <img id="totem-img-1" src="IMG/totem/slide1.jpg" crossorigin="anonymous"/>
+      <img id="totem-img-2" src="IMG/totem/slide2.jpg" crossorigin="anonymous"/>
+      <img id="totem-img-3" src="IMG/totem/slide3.jpg" crossorigin="anonymous"/>
+      <img id="totem-img-4" src="IMG/totem/slide4.jpg" crossorigin="anonymous"/>
+      <img id="totem-img-5" src="IMG/totem/slide5.jpg" crossorigin="anonymous"/>
+
+      <!-- AUDIO NARRANTE -->
+      <audio id="totem-audio" src="AUDIO/totem_piazza.mp3" preload="auto"></audio>
+
+    </a-assets>
+
+    <a-sky src="#sky-texture" rotation="0 -90 0"></a-sky>
+    <a-light type="ambient" color="#ffffff" intensity="0.6"></a-light>
+    <a-light type="directional" color="#e8cf85" intensity="0.8" position="2 4 2"></a-light>
+
+    <a-entity id="rig" position="0 -5.4 0" rotation="0 -20 0">
+      <a-camera id="camera"
+        look-controls="pointerLockEnabled: false"
+        wasd-controls="acceleration: 20"
+        position="0 7.0 0">
+        <a-cursor color="#c9a84c" fuse="false" raycaster="objects: .interactable"></a-cursor>
+      </a-camera>
+    </a-entity>
+
+    <!-- ═══════════════════════════════════════════
+         PORTALE → Vista Esterna
+    ════════════════════════════════════════════ -->
+    <a-entity position="-2 0 -5">
+      <a-torus
+        class="interactable"
+        radius="0.7" radius-tubular="0.04" color="#c9a84c" position="0 1.4 0"
+        animation="property: rotation; to: 0 360 0; dur: 6000; loop: true; easing: linear"
+        onclick="window.location.href='esterno.html'"
+      ></a-torus>
+      <a-circle
+        class="interactable"
+        radius="0.65" position="0 1.4 0"
+        material="shader: flat; color: #0a1a2a; opacity: 0.8"
+        animation="property: material.opacity; to: 0.5; dur: 1500; loop: true; dir: alternate"
+        onclick="window.location.href='esterno.html'"
+      ></a-circle>
+      <a-plane
+        position="0 2.3 -0.2" rotation="0 0 0"
+        width="1.6" height="0.35"
+        material="shader: flat; color: #000000; opacity: 0.8; side: double"
+      ></a-plane>
+      <a-text value="Vista Esterna" position="0 2.3 -0.1" rotation="0 0 0"
+        align="center" color="#ffffff" width="2" wrap-count="16" side="double">
+      </a-text>
+      <a-entity portal-particles position="0 1.4 0"></a-entity>
+    </a-entity>
+
+    <!-- ═══════════════════════════════════════════
+         TOTEM INFORMATIVO
+         → Modifica position e rotation per spostarlo nella scena
+    ════════════════════════════════════════════ -->
+    <a-entity id="totem-group" position="3 -1 -2" face-camera-y>
+
+      <!-- === OMBRE A TERRA === -->
+      <a-ellipse
+        radiusX="1.6" radiusY="0.55"
+        position="0 0.01 0.1"
+        rotation="-90 0 0"
+        material="shader: flat; color: #000000; opacity: 0.3; side: double"
+      ></a-ellipse>
+      <a-ellipse
+        radiusX="1.1" radiusY="0.38"
+        position="0 0.015 0.1"
+        rotation="-90 0 0"
+        material="shader: flat; color: #000000; opacity: 0.2; side: double"
+      ></a-ellipse>
+
+      <!-- === PALO DI LEGNO SINISTRO === -->
+      <a-cylinder
+        height="4.8" radius="0.1" position="-1.0 2.45 0"
+        material="color: #3d2510; roughness: 0.95; metalness: 0.0"
+      ></a-cylinder>
+      <!-- venatura sx -->
+      <a-box width="0.02" height="4.8" depth="0.1" position="-0.92 2.45 0"
+        material="color: #281508; roughness: 1.0; metalness: 0.0"
+      ></a-box>
+
+      <!-- === PALO DI LEGNO DESTRO === -->
+      <a-cylinder
+        height="4.8" radius="0.1" position="1.0 2.45 0"
+        material="color: #3d2510; roughness: 0.95; metalness: 0.0"
+      ></a-cylinder>
+      <!-- venatura dx -->
+      <a-box width="0.02" height="4.8" depth="0.1" position="1.08 2.45 0"
+        material="color: #281508; roughness: 1.0; metalness: 0.0"
+      ></a-box>
+
+      <!-- === TRAVERSA FERRO IN CIMA === -->
+      <a-box
+        width="2.3" height="0.1" depth="0.15" position="0 4.88 0"
+        material="color: #2e2e2e; roughness: 0.55; metalness: 0.85"
+      ></a-box>
+      <!-- bulloni traversa sx -->
+      <a-cylinder height="0.06" radius="0.045" position="-0.9 4.95 0"
+        rotation="90 0 0"
+        material="color: #1a1a1a; roughness: 0.4; metalness: 1.0"
+      ></a-cylinder>
+      <!-- bulloni traversa dx -->
+      <a-cylinder height="0.06" radius="0.045" position="0.9 4.95 0"
+        rotation="90 0 0"
+        material="color: #1a1a1a; roughness: 0.4; metalness: 1.0"
+      ></a-cylinder>
+
+      <!-- === TRAVERSA FERRO IN BASSO === -->
+      <a-box
+        width="2.3" height="0.1" depth="0.15" position="0 0.85 0"
+        material="color: #2e2e2e; roughness: 0.55; metalness: 0.85"
+      ></a-box>
+
+      <!-- === PANNELLO IN LEGNO === -->
+      <a-box
+        width="1.85" height="3.75" depth="0.1" position="0 2.88 0"
+        material="color: #3d2510; roughness: 0.98; metalness: 0.0"
+      ></a-box>
+      <!-- venature orizzontali -->
+      <a-box width="1.85" height="0.015" depth="0.115" position="0 1.65 0"
+        material="color: #1e1008; roughness: 1.0"
+      ></a-box>
+      <a-box width="1.85" height="0.015" depth="0.115" position="0 2.5 0"
+        material="color: #1e1008; roughness: 1.0"
+      ></a-box>
+      <a-box width="1.85" height="0.015" depth="0.115" position="0 3.55 0"
+        material="color: #1e1008; roughness: 1.0"
+      ></a-box>
+      <a-box width="1.85" height="0.015" depth="0.115" position="0 4.2 0"
+        material="color: #1e1008; roughness: 1.0"
+      ></a-box>
+
+      <!-- === CORNICE DI FERRO ATTORNO ALLO SCHERMO === -->
+      <!-- bordo superiore -->
+      <a-box width="1.82" height="0.09" depth="0.15" position="0 4.12 0.09"
+        material="color: #222222; roughness: 0.5; metalness: 0.95"
+      ></a-box>
+      <!-- bordo inferiore -->
+      <a-box width="1.82" height="0.09" depth="0.15" position="0 1.74 0.09"
+        material="color: #222222; roughness: 0.5; metalness: 0.95"
+      ></a-box>
+      <!-- bordo sinistro -->
+      <a-box width="0.09" height="2.47" depth="0.15" position="-0.87 2.93 0.09"
+        material="color: #222222; roughness: 0.5; metalness: 0.95"
+      ></a-box>
+      <!-- bordo destro -->
+      <a-box width="0.09" height="2.47" depth="0.15" position="0.87 2.93 0.09"
+        material="color: #222222; roughness: 0.5; metalness: 0.95"
+      ></a-box>
+      <!-- viti angoli -->
+      <a-cylinder height="0.055" radius="0.04" position="-0.87 4.12 0.17" rotation="90 0 0"
+        material="color: #111; roughness: 0.3; metalness: 1.0"
+      ></a-cylinder>
+      <a-cylinder height="0.055" radius="0.04" position="0.87 4.12 0.17" rotation="90 0 0"
+        material="color: #111; roughness: 0.3; metalness: 1.0"
+      ></a-cylinder>
+      <a-cylinder height="0.055" radius="0.04" position="-0.87 1.74 0.17" rotation="90 0 0"
+        material="color: #111; roughness: 0.3; metalness: 1.0"
+      ></a-cylinder>
+      <a-cylinder height="0.055" radius="0.04" position="0.87 1.74 0.17" rotation="90 0 0"
+        material="color: #111; roughness: 0.3; metalness: 1.0"
+      ></a-cylinder>
+
+      <!-- === SCHERMO (cliccabile) === -->
+      <a-plane
+        id="totem-screen"
+        class="interactable"
+        width="1.62" height="2.28"
+        position="0 2.93 0.12"
+        material="shader: flat; src: #totem-img-1; color: #ffffff"
+        onclick="toggleTotem()"
+      ></a-plane>
+
+      <!-- === TARGA TITOLO === -->
+      <a-box
+        width="1.72" height="0.42" depth="0.13" position="0 4.6 0.06"
+        material="color: #1e0e04; roughness: 0.95; metalness: 0.05"
+      ></a-box>
+      <!-- bordo targa -->
+      <a-box width="1.78" height="0.48" depth="0.1" position="0 4.6 0.02"
+        material="color: #1a1a1a; roughness: 0.5; metalness: 0.9"
+      ></a-box>
+      <a-text
+        value="CASTELNUOVO DI PORTO"
+        position="0 4.6 0.135"
+        align="center" color="#c9a84c"
+        width="1.65" wrap-count="22"
+      ></a-text>
+
+      <!-- === BASE ALLEGGERITA === -->
+      <!-- Piattaforma inferiore sottile -->
+      <a-box
+        width="2.2" height="0.08" depth="0.7" position="0 0.04 0.1"
+        material="color: #2e1a08; roughness: 1.0; metalness: 0.0"
+      ></a-box>
+      <!-- Rinforzo ferro base sx -->
+      <a-box
+        width="0.1" height="0.32" depth="0.65" position="-1.0 0.2 0.08"
+        material="color: #252525; roughness: 0.5; metalness: 0.9"
+      ></a-box>
+      <!-- Rinforzo ferro base dx -->
+      <a-box
+        width="0.1" height="0.32" depth="0.65" position="1.0 0.2 0.08"
+        material="color: #252525; roughness: 0.5; metalness: 0.9"
+      ></a-box>
+      <!-- Bulloni base sx -->
+      <a-cylinder height="0.055" radius="0.04" position="-1.0 0.33 0.38" rotation="90 0 0"
+        material="color: #111; roughness: 0.3; metalness: 1.0"
+      ></a-cylinder>
+      <!-- Bulloni base dx -->
+      <a-cylinder height="0.055" radius="0.04" position="1.0 0.33 0.38" rotation="90 0 0"
+        material="color: #111; roughness: 0.3; metalness: 1.0"
+      ></a-cylinder>
+
+      <!-- === FASCIA COUNTER (ferro) === -->
+      <a-box
+        width="1.72" height="0.32" depth="0.12" position="0 1.38 0.07"
+        material="color: #1e1e1e; roughness: 0.5; metalness: 0.9"
+      ></a-box>
+      <a-text
+        id="totem-counter"
+        value="▶  Clicca per avviare"
+        position="0 1.38 0.14"
+        align="center" color="#c9a84c"
+        width="1.9" wrap-count="24"
+      ></a-text>
+
+      <!-- === GANCIO DECORATIVO IN CIMA === -->
+      <a-torus
+        radius="0.14" radius-tubular="0.025"
+        position="0 5.1 0"
+        rotation="90 0 0"
+        material="color: #2a2a2a; roughness: 0.4; metalness: 1.0"
+      ></a-torus>
+
+    </a-entity>
+    <!-- fine totem -->
+
+  </a-scene>
+
+  <script>
+    /* ──────────────────────────────────────────
+       COMPONENTE: rotazione totem verso la camera
+       (solo asse Y — il totem resta sempre dritto)
+    ────────────────────────────────────────── */
+    AFRAME.registerComponent('face-camera-y', {
+      tick: function () {
+        var camera = document.getElementById('camera');
+        if (!camera) return;
+        var camPos = new THREE.Vector3();
+        var elPos  = new THREE.Vector3();
+        camera.object3D.getWorldPosition(camPos);
+        this.el.object3D.getWorldPosition(elPos);
+        var angle = Math.atan2(camPos.x - elPos.x, camPos.z - elPos.z);
+        this.el.object3D.rotation.y = angle;
+      }
+    });
+
+    /* ──────────────────────────────────────────
+       CONFIGURAZIONE TOTEM
+       → Modifica SOLO questa sezione
+    ────────────────────────────────────────── */
+    var TOTEM_CONFIG = {
+      videoId  : 'totem-video',
+      audioId  : 'totem-audio',
+      images   : ['#totem-img-1','#totem-img-2','#totem-img-3','#totem-img-4','#totem-img-5'],
+      interval : 5000   // ms per ogni immagine
+    };
+
+    /* ──────────────────────────────────────────
+       STATO INTERNO
+    ────────────────────────────────────────── */
+    var totemActive  = false;
+    var isVideoPhase = false;
+    var currentSlide = 0;
+    var slideTimer   = null;
+
+    var totemVideo   = null;
+    var totemAudio   = null;
+    var totemScreen  = null;
+    var totemCounter = null;
+
+    /* Inizializza dopo che la scena A-Frame è pronta */
+    document.querySelector('a-scene').addEventListener('loaded', function () {
+      totemVideo   = document.getElementById(TOTEM_CONFIG.videoId);
+      totemAudio   = document.getElementById(TOTEM_CONFIG.audioId);
+      totemScreen  = document.getElementById('totem-screen');
+      totemCounter = document.getElementById('totem-counter');
+
+      /* Quando il video drone finisce → passa automaticamente alle immagini */
+      totemVideo.addEventListener('ended', function () {
+        if (!totemActive) return;
+        isVideoPhase = false;
+        currentSlide = 0;
+        showImage(currentSlide);
+        updateCounter();
+        startImageTimer();
+      });
+    });
+
+    /* ── TOGGLE avvio/stop ── */
+    function toggleTotem() {
+      totemActive ? stopTotem() : startTotem();
+    }
+
+    /* ── AVVIA: prima il video drone, poi le immagini ── */
+    function startTotem() {
+      totemActive  = true;
+      isVideoPhase = true;
+      currentSlide = 0;
+
+      /* Audio narrante (parte subito insieme al video) */
+      if (totemAudio) {
+        totemAudio.currentTime = 0;
+        totemAudio.play().catch(function(e){
+          console.warn('Audio bloccato:', e);
+        });
+      }
+
+      /* Video sul totem */
+      totemScreen.setAttribute('material', 'shader', 'flat');
+      totemScreen.setAttribute('material', 'src', '#totem-video');
+      totemVideo.currentTime = 0;
+      totemVideo.play().catch(function(e){
+        /* Fallback: se il video non parte, vai subito alle immagini */
+        console.warn('Video bloccato, salto alle immagini:', e);
+        isVideoPhase = false;
+        showImage(0);
+        updateCounter();
+        startImageTimer();
+      });
+
+      updateCounter();
+    }
+
+    /* ── FERMA tutto e resetta ── */
+    function stopTotem() {
+      totemActive  = false;
+      isVideoPhase = false;
+      clearInterval(slideTimer);
+      slideTimer = null;
+
+      if (totemVideo) { totemVideo.pause(); totemVideo.currentTime = 0; }
+      if (totemAudio) { totemAudio.pause(); totemAudio.currentTime = 0; }
+
+      /* Torna alla prima immagine come anteprima */
+      showImage(0);
+      totemCounter.setAttribute('value', '▶  Clicca per avviare');
+    }
+
+    /* ── AVVIA timer scorrimento immagini ── */
+    function startImageTimer() {
+      clearInterval(slideTimer);
+      slideTimer = setInterval(function () {
+        currentSlide = (currentSlide + 1) % TOTEM_CONFIG.images.length;
+        showImage(currentSlide);
+        updateCounter();
+      }, TOTEM_CONFIG.interval);
+    }
+
+    /* ── MOSTRA immagine per indice ── */
+    function showImage(index) {
+      totemScreen.setAttribute('material', 'shader', 'flat');
+      totemScreen.setAttribute('material', 'src', TOTEM_CONFIG.images[index]);
+    }
+
+    /* ── AGGIORNA testo counter ── */
+    function updateCounter() {
+      var total = TOTEM_CONFIG.images.length;
+      if (isVideoPhase) {
+        totemCounter.setAttribute('value', '▶  Vista drone');
+      } else {
+        totemCounter.setAttribute('value', '❚❚  ' + (currentSlide + 1) + ' / ' + total);
+      }
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') stopTotem();
+    });
+  </script>
+</body>
+</html>

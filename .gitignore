@@ -1,0 +1,7 @@
+npm-debug.log*
+.DS_Store
+Thumbs.db
+desktop.ini
+# Node (se mai usi un server locale o tool di build)
+node_modules/
+npm-debug.log*
